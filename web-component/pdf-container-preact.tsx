@@ -122,6 +122,8 @@ import {
   ZoomRendererProps,
 } from './components/renderers';
 
+import { PDFContainerConfig } from './pdf-container-config';
+
 // save states of each plugin
 type State = GlobalStoreState<{
   [ZOOM_PLUGIN_ID]: ZoomState;
@@ -837,14 +839,13 @@ const pluginConfigs = {
   },
 };
 
-
 interface PDFContainerProps {
-  url: string;
+  config: PDFContainerConfig;
 }
 
 const logger = new AllLogger([new ConsoleLogger(), new PerfLogger()]);
 
-export const PDFContainerPreact: FunctionalComponent<PDFContainerProps> = ({ url }) => {
+export const PDFContainerPreact: FunctionalComponent<PDFContainerProps> = ({ config }) => {
   // Use engine to load pdf
   const { engine, isLoading } = usePdfiumEngine({
     worker: true,
@@ -897,7 +898,7 @@ export const PDFContainerPreact: FunctionalComponent<PDFContainerProps> = ({ url
               pdfFile: {
                 id: 'pdf',
                 name: 'annotated.pdf',
-                url: url,
+                url: config.url,
               },
             },
           }),

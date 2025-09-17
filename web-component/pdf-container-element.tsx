@@ -3,32 +3,41 @@
 
 import { h, render } from 'preact';
 import { PDFContainerPreact } from './pdf-container-preact';
+import { PDFContainerConfig } from './pdf-container-config';
 
-export function definePDFContainer() {
-  if (typeof window !== "undefined" && typeof window.customElements !== "undefined") {
-    // Custom HTML element for pdfviewer
-    class PDFContainerElement extends HTMLElement {
-      private root: ShadowRoot;
+const PDFContainerElement = typeof window !== 'undefined'
+  // Custom HTML element for pdfviewer
+  ? class PDFContainerElementImplementation extends HTMLElement {
+    private root: ShadowRoot;
+    private _config: PDFContainerConfig | null = null;
 
-      constructor() {
-        super();
-        this.root = this.attachShadow({ mode: 'open' });
-      }
-
-      connectedCallback() {
-        this.renderContainer();
-      }
-
-      private renderContainer() {
-        const url = this.getAttribute("url") || "https://snippet.embedpdf.com/ebook.pdf";
-        
-        // Render Preact component into shadow root
-        render(<PDFContainerPreact url={url} />, this.root);
-      }
+    constructor() {
+      super();
+      this.root = this.attachShadow({ mode: 'open' });
     }
 
-    if (!customElements.get("pdf-container")) {
-      customElements.define("pdf-container", PDFContainerElement);
+    get config(): PDFContainerConfig | null {
+      return this._config;
+    }
+
+    set config(value: PDFContainerConfig | null) {
+      this._config = value;
+      this.render();
+    }
+
+    connectedCallback() {
+      this.render();
+    }
+
+    private render() {
+      const defaultConfig: PDFContainerConfig = {
+        url: "https://snippet.embedpdf.com/ebook.pdf",
+      }
+      
+      // Render Preact component into shadow root
+      render(<PDFContainerPreact config={this._config ?? defaultConfig} />, this.root);
     }
   }
-}
+  : class {};
+
+export { PDFContainerElement };
